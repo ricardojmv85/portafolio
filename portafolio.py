@@ -477,4 +477,10 @@ def image_preprocessing():
             else:
                 break
         class_num+=1
-            
+
+        
+##############################################################################################################################################################################3
+
+# funcion que crea el directorio para los logs de TensorBoard, recibe el nombre del modelo
+def init_tensorboard(model): 
+    return TensorBoard(log_dir="logs2/{}{}".format(model, time()), update_freq='batch')
