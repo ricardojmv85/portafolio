@@ -1,59 +1,12 @@
 
+
 # PORFAFOLIO DE FUNCIONES 
 
 #El siguiente portafolio contiene funciones que facilitan el analicis y el orden en el codigo a la hora de ejecutar funciones de machine learning.
 
-# funcion que importa las librerias basicas para manejar dataframes, graficas y tener funciones de metricas de sklearn.
-def importaciones_basicas():
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from mpl_toolkits.mplot3d import axes3d, Axes3D
-    import pandas as pd
-    import seaborn as sns
-    from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
-    from sklearn.model_selection import cross_val_score
-    from __future__ import division
-    from sklearn.utils import shuffle
-
-#######################################################################################################################################################################################
-# funcion que importa las librerias basicas para correr redes neuronales.
-def importaciones_tensorflow():
-    import tensorflow as tf
-    from tensorflow.keras.layers import Dropout
-    from tensorflow import keras
-    from tensorflow.keras import layers
-    from keras.models import load_model
-    from tensorflow.keras.layers import Dense, Flatten, Activation 
-
-#######################################################################################################################################################################################
-    
-# funcion que importa las librerias necesarias para ejecutar los algoritmos de clusterizacion de sklearn
-def importaciones_clustering():
-    import sklearn
-    from sklearn.model_selection import train_test_split
-    from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
-    from sklearn.cluster import MeanShift, estimate_bandwidth
-    from sklearn.cluster import AgglomerativeClustering
-    from sklearn.mixture import GaussianMixture
-    from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-    from sklearn.linear_model import LogisticRegression
-    from sklearn.cluster import KMeans
-    from sklearn.decomposition import PCA
-    from sklearn.svm import SVC
-    from collections import Counter
-    from sklearn.metrics import confusion_matrix
-
 #######################################################################################################################################################################################
 
-# funcion que importa las librerias necesarias de sklearn para ejecutar arboles de decision.
-def importaciones_arboles():
-    from sklearn.utils.multiclass import unique_labels
-    from sklearn.ensemble import RandomForestClassifier
-    from sklearn.ensemble import AdaBoostClassifier
-    from sklearn.ensemble import GradientBoostingClassifier
-    from sklearn.tree import DecisionTreeClassifier, export_graphviz, DecisionTreeRegressor
 
-#######################################################################################################################################################################################
 
 # funcion que recibe un dataframe y retorna las caracteristicas principales en una lista -> [las dimensiones del dataframe, el nombre de las columnas,el head del dataframe, el tail del dataframe]
 def caracteristicas_principales(df):
@@ -67,8 +20,15 @@ def eliminar_repetidos(df,columns):
 
 #######################################################################################################################################################################################
 
+# funcion que retorna la cantidad de missing values
+def missing(data):
+    retunr(data.isna().sum().sum())
+
+#######################################################################################################################################################################################
+
 # funcion que recibe el dataframe para obtener los componentes principales y el numero de componentes principales.
 def pca(df,componentes):
+    import pandas as pd
     import sklearn
     from sklearn.decomposition import PCA
     pca=PCA(n_components=componentes)
@@ -77,6 +37,41 @@ def pca(df,componentes):
 
 #######################################################################################################################################################################################
 
+
+# funcionn que grafica el biplot de los 2 primeros componentes
+def biplot():
+    # Scatter plot based and assigned color based on 'label - y'
+    pc_df = pd.DataFrame(data = X_pca2, columns = ['PC1', 'PC2'])
+    pc_df['Cluster'] = y
+    sns.lmplot('PC1', 'PC2', data=pc_df, fit_reg = False, size=10, hue = 'Cluster', scatter_kws={"s": 100})
+
+    # set the maximum variance of the first two PCs
+    # this will be the end point of the arrow of each **original features**
+    xvector = pca.components_[0]
+    yvector = pca.components_[1]
+    sc = StandardScaler()
+    features_std = sc.fit_transform(X)
+    # value of the first two PCs, set the x, y axis boundary
+    xs = pca.transform(features_std)[:,0]
+    ys = pca.transform(features_std)[:,1]
+
+    ## visualize projections
+
+    ## Note: scale values for arrows and text are a bit inelegant as of now,
+    ##       so feel free to play around with them
+    for i in range(len(xvector)):
+        # arrows project features (ie columns from csv) as vectors onto PC axes
+        # we can adjust length and the size of the arrow
+        plt.arrow(0, 0, xvector[i]*max(xs), yvector[i]*max(ys),
+                  color='r', width=0.05, head_width=0.)
+        plt.text(xvector[i]*max(xs)*1.1, yvector[i]*max(ys)*1.1,
+                 list(X.columns.values)[i], color='r')
+
+    plt.title('PCA Plot of first PCs')
+
+
+######################################################################################################################################################################################  
+    
 # funcion que recibe el dataframe que contiene los datos, y una lista de los nombres de las dos variables a graficas.
 def grafica_barras(df,columnas):
     return(sns.barplot(x=columnas[0],y=columnas[1], 
@@ -153,7 +148,7 @@ def lr(x,y):
 # funcion que ejecuta un analizador discriminador cuadratico, recibiendo los dataframes de features y target variable, la funcion ejecuta la particion de la data y ajusta qda a la data de entreamiento, y retorna el accuracy dell test
 def qda(x,y):
     X_train, X_test,y_train,y_test = train_test_split(x,y, test_size=0.25, random_state=100)
-    print "QDA"
+    print ("QDA")
     clf = QuadraticDiscriminantAnalysis().fit(X_train,y_train.values.ravel())
     compare(clf.predict(X_test),y_test.values.ravel())
     return clf.predict(X_test),X_test
@@ -175,7 +170,7 @@ def hca(x,y):
         clustering = AgglomerativeClustering(linkage=linkage, n_clusters=2).fit(x)
         print(linkage)
         compare(clustering.labels_,y.values.ravel())
-        print ""
+        print ("")
 
 #######################################################################################################################################################################################
 
@@ -186,7 +181,7 @@ def compare(cluster_labels,real_labels):
     for i in range(0,quantity):
         if(cluster_labels[i]==real_labels[i]):
             count=count+1
-    print "Acurracy: ",round(count/quantity,5)*100
+    print ("Acurracy: ",round(count/quantity,5)*100)
 
 #######################################################################################################################################################################################
 
@@ -256,29 +251,29 @@ def PL(data,feas,deg):
     tmp=[['ALL',res.rsquared,res.rsquared_adj,res.fvalue,res.f_pvalue]]
     tmp=pd.DataFrame(data=tmp,columns=['feature','R2','Adj(R2)','F value','F p value'])
     return tmp.sort_values('R2',ascending=0)
-pd.set_option('display.max_rows', 100)
+    pd.set_option('display.max_rows', 100)
 
 #######################################################################################################################################################################################
 
 # funcion que ajuste e imprime las metricas principales de una regresion ridge, los dataframes de X y Y, ademas de alpha que es el coeficiente de penalizacion.
-def ridge_regresion(,y,alpha2):
+def ridge_regresion(X,y,alpha2):
     X_train, X_test,y_train,y_test = train_test_split(X,y, test_size=0.25, random_state=100)
     ridge_model = Ridge(alpha=alpha2, fit_intercept=True)
     ridge_model.fit(X_train, y_train)
-    print "Ridge Regression"
-    print "R2: ", ridge_model.score(X_test, y_test)
-    print "Coefficients: " ,ridge_model.coef_[0][:10]
+    print ("Ridge Regression")
+    print ("R2: ", ridge_model.score(X_test, y_test))
+    print ("Coefficients: " ,ridge_model.coef_[0][:10])
 
 #######################################################################################################################################################################################
 
 # funcion que ajusta e imporime als metricas princiaples de una regresion lasso, recibe los dataframes de X y Y, ademas del parametro de regularizacion.
 def laddo_regresion(X,y,alpha2):
     X_train, X_test,y_train,y_test = train_test_split(X,y, test_size=0.25, random_state=100)
-    print "Lasso Regression"
+    print ("Lasso Regression")
     lasso_model_0 = Lasso(alpha=alpha2, fit_intercept=True)
     lasso_model_0.fit(X_train, y_train)
-    print "R2 Lasso: ", lasso_model_0.score(X_test, y_test)
-    print "Coefficients Lasso: " ,lasso_model_0.coef_[:10]
+    print ("R2 Lasso: ", lasso_model_0.score(X_test, y_test))
+    print ("Coefficients Lasso: " ,lasso_model_0.coef_[:10])
 
 #######################################################################################################################################################################################
 
@@ -295,7 +290,7 @@ def arbol_altura(X_train,y_train):
     score['scores']=scores
     score['depth']=depth
 
-    print score.loc[score['scores']==max(score['scores'])]
+    print (score.loc[score['scores']==max(score['scores'])])
     fig=plt.figure(figsize=(16,6))
     ax=fig.add_subplot(1,2,1)
     ax.set_xlabel('Depth')
@@ -319,7 +314,7 @@ def arbol_hojas(X_train,y_train):
     score['scores']=scores
     score['min_samples']=min_samples
         
-    print score.loc[score['scores']==max(score['scores'])]
+    print (score.loc[score['scores']==max(score['scores'])])
     fig=plt.figure(figsize=(16,6))
     ax=fig.add_subplot(1,2,1)
     ax.set_xlabel('Min samples')
@@ -342,7 +337,7 @@ def random_forest_estimadores(X_train,y_train):
     score['scores']=scores
     score['estimators']=estimators
 
-    print score.loc[score['scores']==max(score['scores'])]
+    print (score.loc[score['scores']==max(score['scores'])])
     fig=plt.figure(figsize=(16,6))
     ax=fig.add_subplot(1,2,1)
     ax.set_xlabel('Estimator')
@@ -365,7 +360,7 @@ def adaboost_estimadores(X_train,y_train):
     score['scores']=scores
     score['estimators']=estimators
 
-    print score.loc[score['scores']==max(score['scores'])]
+    print( score.loc[score['scores']==max(score['scores'])])
     fig=plt.figure(figsize=(16,6))
     ax=fig.add_subplot(1,2,1)
     ax.set_xlabel('Estimators')
@@ -388,7 +383,7 @@ def gradientboos_estimadores():
     score['scores']=scores
     score['estimators']=estimators
 
-    print score.loc[score['scores']==max(score['scores'])]
+    print (score.loc[score['scores']==max(score['scores'])])
     fig=plt.figure(figsize=(16,6))
     ax=fig.add_subplot(1,2,1)
     ax.set_xlabel('Estimators')
@@ -402,8 +397,7 @@ def gradientboos_estimadores():
 # funcion que grafica una matriz de confusion recibiendo como parametros los labels reales y los labels predecidos en forma de lista.
 def plot_confusion_matrix(y_true, y_pred,
                           normalize=False,
-                          title=None,
-                          cmap=plt.cm.Blues):
+                          title=None):
     if not title:
         if normalize:
             title = 'Normalized confusion matrix'
