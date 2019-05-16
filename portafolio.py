@@ -441,3 +441,40 @@ def plot_confusion_matrix(y_true, y_pred,
                     color="white" if cm[i, j] > thresh else "black")
     fig.tight_layout()
     return ax
+
+
+##############################################################################################################################################################################3
+
+# funcion que convierte las imagenes de un directorio en arrays que representan las imagenes en blanco y negro y con una dimension mas baja,
+def image_preprocessing():
+    X = [] # the images 
+    y=[] # the labels of classes of flowers
+    DATADIR="flowers-recognition/flowers/" #directory to the images folders
+    IMG_SIZE=60 #sizse of the images
+    CATEGORIES=[] 
+
+    # this function will insert the name of each folder in the CATEGORIES array for future navigation
+    for i in os.listdir(DATADIR):
+        CATEGORIES.append(i)
+
+    class_num=0
+    for category in CATEGORIES: # fot each category or folder in the image dataset
+        path = os.path.join(DATADIR,category) #making the path to an specific flower class folder
+
+        num_images=0
+        
+        # for the first 700 images in the folder it will transform the image to an array, then it will reshape 
+        for img in (os.listdir(path)):
+            if(num_images<700):
+                try:
+                    img_array = cv2.imread(os.path.join(path,img) ,cv2.IMREAD_GRAYSCALE) #transform the image to array
+                    new_array = cv2.resize(img_array, (IMG_SIZE, IMG_SIZE))  # reshape the image
+                    X.append(new_array)  #adding the image array to the X array of images
+                    y.append(class_num) # adding the class of flower of the image to the laberls array
+                    num_images+=1
+                except Exception as e:
+                        True
+            else:
+                break
+        class_num+=1
+            
